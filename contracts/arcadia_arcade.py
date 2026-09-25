@@ -1,4 +1,4 @@
-# { "Depends": "py-genlayer:test" }
+# { "Depends": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6" }
 #
 # Arcadia GenLayer Arcade — an on-chain, skill-based XP layer for the GenLayer
 # community. Think of it as the GenLayer-native equivalent of a Discord trivia
