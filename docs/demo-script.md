@@ -1,56 +1,57 @@
-# Demo script — Arcadia Grader (2–3 min)
+# Demo script — Arcadia Arcade (2–3 min)
 
-Goal: show a subjective quiz answer being graded **by validator consensus**, on
-chain, with no trusted backend — and the leaderboard updating as a result.
+Goal: show a host spinning up a private game room, two players joining and
+answering, answers graded **by validator consensus** on chain, and XP landing on
+the players' wallets — no trusted backend.
 
 ## Setup (before recording)
 - GenLayer Studio open (local or https://studio.genlayer.com), a network
-  selected, and the account funded on that network.
-- `contracts/arcadia_grader.py` deployed; have the contract address / tx hash on
-  screen or in the clipboard.
+  selected, `contracts/arcadia_arcade.py` deployed. Have the contract address /
+  deploy tx hash on screen.
+- Three accounts ready: a **host** and two **players** (P1, P2).
 
 ## Beat 1 — Framing (~20s)
-One line: "Arcadia grades quiz answers today with a centralized signer deciding
-what's correct. Here that judgement is an on-chain GenLayer Intelligent Contract
-— AI validators reach consensus on the verdict, no backend."
+"GenLayer community XP today comes from Discord activity — messages, voice time.
+This is an on-chain XP layer earned by *skill*: anyone hosts a game, answers are
+graded by AI validator consensus, and XP lands on your wallet. No backend signer."
 
-## Beat 2 — Create a question (~20s)
-Call `create_question`:
-- `question_id`: `capital-of-france`
-- `question`: `What is the capital of France, and what river runs through it?`
-- `rubric`: `A passing answer must name Paris as the capital AND the Seine as
-  the river. Both are required.`
+## Beat 2 — Host opens a private room (~30s)
+As the host:
+- `create_room("genlayer-101", "GenLayer 101", true, "sesame-42")` — private.
+- `add_question("genlayer-101", "q1", "What is the capital of France, and what
+  river runs through it?", "Must name Paris AND the Seine. Both required.")`
+Show the txs succeed; call `get_room` to show status `open`, `question_count 1`.
+Note the room does **not** appear in `list_public_rooms` (it's private).
 
-Show the tx succeed; call `get_question` to show it stored.
+## Beat 3 — Players join with the code (~20s)
+- P1 `join_room("genlayer-101", "sesame-42")` → succeeds.
+- Show a wrong code rejected: `join_room("genlayer-101", "nope")` → fails.
+- P2 `join_room("genlayer-101", "sesame-42")` → succeeds.
 
-## Beat 3 — Submit a passing answer (~30s)
-Call `submit_answer(capital-of-france, "The capital is Paris and the Seine flows
-through it.")`.
+## Beat 4 — Play + live grading (the key moment) (~40s)
+- P1 `submit_answer("genlayer-101", "q1", "Paris, and the Seine runs through it.")`.
+  Open the transaction's consensus view: show multiple validators independently
+  grading and **agreeing** on `pass: true`, high score. This is the screenshot.
+- P2 `submit_answer("genlayer-101", "q1", "Berlin, on the Nile.")` → `pass: false`.
+- (Optional borderline) a third answer `"It's Paris."` — show validators still
+  **converging** despite the answer being only half-right.
 
-**This is the key moment:** open the transaction's consensus view and show the
-multiple validators independently grading and agreeing on the verdict
-(`pass: true`, high score). Call `get_submission("sub_1")` to show the stored
-verdict + reasoning.
+## Beat 5 — Leaderboard + portable XP (~25s)
+- `get_room_leaderboard("genlayer-101")` — P1 scored, P2 at zero.
+- `get_global_xp(P1)` — the same points on P1's wallet, portable across rooms.
+- Try P1 re-answering q1 → rejected (one submission per question; leaderboard
+  can't be farmed).
 
-## Beat 4 — Submit a failing answer (~20s)
-Call `submit_answer(capital-of-france, "It's Berlin, on the Nile.")`.
-Show `pass: false`. Note the leaderboard did **not** move for this one.
-
-## Beat 5 — Borderline case (optional, great to show) (~25s)
-Call `submit_answer(capital-of-france, "It's Paris.")` — only half the rubric is
-met. Open the consensus view: the interesting part is that despite the ambiguity
-the validators still **converge on one verdict** rather than diverging. This is
-the screenshot worth keeping.
-
-## Beat 6 — Leaderboard (~15s)
-Call `get_leaderboard_entry(<your address>)` (or `get_leaderboard`) and show the
-score reflects only the passing submission(s). Close on: "The grade, the
-consensus, and the score all live on chain — no signer, no oracle."
+## Beat 6 — Close (~15s)
+Host `close_room("genlayer-101")`. Show a further `submit_answer` now rejected.
+Close on: "The game, the grade, the consensus, and the XP all live on chain."
 
 ## Shot list to capture
-- [ ] `create_question` tx success
-- [ ] `submit_answer` (pass) — multi-validator consensus view
-- [ ] `submit_answer` (fail) — verdict false
-- [ ] borderline consensus view (the convergence screenshot)
-- [ ] leaderboard reflecting the pass
-- [ ] deployment tx hash on screen at some point
+- [ ] `create_room` (private) + `add_question` succeed
+- [ ] wrong access code rejected / correct code joins
+- [ ] `submit_answer` pass — multi-validator consensus view
+- [ ] `submit_answer` fail — verdict false
+- [ ] borderline convergence view (optional)
+- [ ] room leaderboard + `get_global_xp` reflecting only passes
+- [ ] re-submission and post-close submission both rejected
+- [ ] deployment tx hash on screen
